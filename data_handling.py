@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 
 from CONSTANTS import SOS_token, EOS_token, UNIQUE_WORDS
 
-
 def load_dataset(language, dataset_type, dataset_path):
     with open('{}/{}.{}.txt'.format(dataset_path, dataset_type, language), 'r', encoding='utf-8') as data:
         sentences = [sentence.rstrip('\n').split(' ') for sentence in data]
@@ -46,9 +45,7 @@ def process_sentences(sentences, vocab, translate_to=False):
 	X = np.array([np.array(Xi) for Xi in X])
 	return X
 
-def process_train_test_datasets(language_in='en', 
-								language_out='vi',
-								dataset_path='data'):
+def process_train_test_datasets(language_in='en', language_out='vi', dataset_path='data'):
 	processed_dataset = dict()
 	for dataset_type in ['train', 'test']:
 		for language in [language_in, language_out]:
