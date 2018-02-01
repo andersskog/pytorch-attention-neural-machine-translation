@@ -29,6 +29,8 @@ def train_step(in_sentence, out_sentence, model_sections, optimizing_params):
         input_context = model_sections['attention'](decoder_hidden, encoder_output) 
         decoder_output, decoder_hidden = model_sections['decoder'](input_context, decoder_hidden, decoder_input)
         loss += optimizing_params['loss_function'](decoder_output.view(1,-1), decoder_input.view(-1))
+    
+    # backpropagation to update gradients
     loss.backward()
     optimizing_params['enc_optimizer'].step()
     optimizing_params['att_optimizer'].step()
@@ -38,7 +40,7 @@ def train_step(in_sentence, out_sentence, model_sections, optimizing_params):
 
 def test_step(in_sentence, out_sentence, model_sections, optimizing_params):
     # pass input sentence through encoder
-    encoder_hidden = encoder.initHidden()
+    encoder_hidden = model_sections['encoder'].initHidden()
     input = Variable(torch.LongTensor(in_sentence).view(1,-1))
     input = input.cuda() if use_cuda else input
     encoder_output, encoder_hidden = model_sections['encoder'](input, encoder_hidden)
@@ -64,9 +66,6 @@ def train(in_sentences, out_sentences, in_test_sentences, out_test_sentences, mo
     current_loss = 0
     testing_loss = 0
     for epoch_num in range(EPOCHS):
-        model_sections['encoder'].zero_grad()
-        model_sections['decoder'].zero_grad()
-        model_sections['attention'].zero_grad()
         timestamp1 = time.time()
         timestamp3 = time.time()
         if DEBUG:
@@ -77,8 +76,12 @@ def train(in_sentences, out_sentences, in_test_sentences, out_test_sentences, mo
             test_set_length = len(in_test_sentences)
         for index, (in_sentence, out_sentence) in enumerate(
                 zip(in_sentences[:train_set_length], out_sentences[:train_set_length])):
+            # Update gradients to 0 before every training step
+            optimizing_params['enc_optimizer'].zero_grad()
+            optimizing_params['att_optimizer'].zero_grad()
+            optimizing_params['dec_optimizer'].zero_grad()
             current_loss += train_step(in_sentence, out_sentence, model_sections, optimizing_params)
-            if index % 10 == 0:
+            if index % 100 == 0:
                 timestamp4 = time.time()
                 print('Epoch: {} | STEP: {} | TRAINING Loss: {} | Time: {}'.format(
                     epoch_num + 1, index, current_loss / train_set_length, timestamp4 - timestamp3))
@@ -145,6 +148,3 @@ if __name__ == "__main__":
     else:
         print('Command format as follows: python3 trainer.py language_in language_out dataset_path')
         print('Example: python3 trainer.py en vi data')
-
-
-

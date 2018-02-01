@@ -9,6 +9,7 @@ def load_dataset(language, dataset_type, dataset_path):
     return sentences
 
 def create_vocab(sentences):
+	# create dict of all words with their frequencies
     language_dict = dict()
     for sentence in sentences:
         for word in sentence:
@@ -16,10 +17,12 @@ def create_vocab(sentences):
                 language_dict[word] += 1
             else:
                 language_dict[word] = 1
+    # filter UNIQUE_WORDS most common words (UNIQUE_WORDS is an int)
     word_frequency = [(word, language_dict[word]) for word in language_dict]
     sorted_word_frequency = sorted(word_frequency, key=lambda x: x[1], reverse=True)
     if len(sorted_word_frequency) > UNIQUE_WORDS - 3:
         sorted_word_frequency = sorted_word_frequency[:UNIQUE_WORDS - 3]
+    # add most common words to vocabulary dict
     vocab_dict = {'<unk>': 0, '<s>': 1, '</s>': 2}
     counter = 3
     for word_tuple in sorted_word_frequency:
@@ -35,6 +38,7 @@ def word_from_dict(word, lan_dict):
         return lan_dict['<unk>']
 
 def process_sentences(sentences, vocab, translate_to=False):
+	# create matrix of sentence indexes from sentence words
 	X = list()
 	for index, sentence in enumerate(sentences):
 		if translate_to:
