@@ -84,7 +84,7 @@ def train(in_sentences, out_sentences, in_test_sentences, out_test_sentences, mo
             if index % 100 == 0:
                 timestamp4 = time.time()
                 print('Epoch: {} | STEP: {} | TRAINING Loss: {} | Time: {}'.format(
-                    epoch_num + 1, index, current_loss / train_set_length, timestamp4 - timestamp3))
+                    epoch_num + 1, index, current_loss / (index + 1), timestamp4 - timestamp3))
                 timestamp3 = time.time()
         for in_test_sentence, out_test_sentence in zip(
                 in_test_sentences[:test_set_length], out_test_sentences[:test_set_length]):
